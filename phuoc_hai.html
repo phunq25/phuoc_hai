@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Phước Hải | Travel Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    /* Smooth & crisp images + fix blur issues */
+    img {
+      image-rendering: crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+    /* Gallery thumbnails hover */
+    .thumb-img {
+      transition: all 0.2s ease;
+      border-width: 2px;
+    }
+    .thumb-img:hover {
+      transform: scale(1.03);
+      border-color: rgba(96, 165, 250, 0.7);
+    }
+    /* Glassmorphic animation */
+    @keyframes shine {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(120%); }
+    }
+    .place-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(139,92,246,0.2);
+      background: rgba(10, 10, 22, 0.55);
+      backdrop-filter: blur(18px);
+      transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .place-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(168, 85, 247, 0.5);
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(168,85,247,0.2);
+    }
+    .hero-image {
+      transition: transform 0.5s ease;
+    }
+    .hero-image:hover {
+      transform: scale(1.02);
+    }
+    .glass-button {
+      transition: all 0.25s;
+    }
+    .glass-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+    /* gallery modal overlay */
+    .gallery-overlay {
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+    }
+    /* custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e1a2f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #7c3aed;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-white antialiased bg-[#03010c]">
+  <!-- Animated gradient background (soft) -->
+  <div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-indigo-600/20 blur-[120px] animate-pulse"></div>
+    <div class="absolute bottom-[-15%] right-[-5%] h-[550px] w-[550px] rounded-full bg-fuchsia-600/15 blur-[130px] animate-pulse" style="animation-delay: 1.5s"></div>
+    <div class="absolute top-[40%] left-[30%] h-[400px] w-[400px] rounded-full bg-blue-500/15 blur-[100px] animate-pulse" style="animation-delay: 0.7s"></div>
+  </div>
+
+  <!-- header -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-black/40 backdrop-blur-xl shadow-sm">
+    <div class="mx-auto flex max-w-[1600px] items-center justify-between px-5 py-3 md:px-12 lg:px-20">
+      <div>
+        <div class="text-[11px] uppercase tracking-[0.3em] text-sky-300">Travel Guide</div>
+        <div class="text-xl font-bold tracking-tight">Phước Hải <span class="text-indigo-300">Explorer</span></div>
+      </div>
+      <nav class="hidden gap-3 md:flex">
+        <button class="filter-btn rounded-full border border-blue-400 bg-blue-600/80 px-5 py-2 text-sm font-medium shadow-md" data-category="Tất cả"><i class="fa-solid fa-compass mr-2"></i>Tất cả</button>
+        <button class="filter-btn rounded-full border border-slate-600 bg-slate-800/60 px-5 py-2 text-sm font-medium" data-category="Ăn uống"><i class="fa-solid fa-utensils mr-2"></i>Ăn uống</button>
+        <button class="filter-btn rounded-full border border-slate-600 bg-slate-800/60 px-5 py-2 text-sm font-medium" data-category="Dạo bước"><i class="fa-solid fa-person-walking mr-2"></i>Dạo bước</button>
+        <button class="filter-btn rounded-full border border-slate-600 bg-slate-800/60 px-5 py-2 text-sm font-medium" data-category="Caffe"><i class="fa-solid fa-mug-hot mr-2"></i>Caffe</button>
+      </nav>
+      <a href="#places" class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-2 text-sm font-semibold shadow-lg transition hover:scale-105">
+  <i class="fa-solid fa-binoculars mr-2"></i> Khám phá
+</a>
+    </div>
+  </header>
+
+  <!-- Hero section -->
+  <section class="relative mx-auto max-w-[1600px] px-5 pt-10 pb-8 md:px-12 lg:px-20 lg:pt-20">
+    <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+      <div>
+        <p class="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-sky-300">🌊 ven biển</p>
+        <h1 class="text-4xl font-extrabold leading-tight md:text-6xl">Du Lịch Phước Hải <br> Cùng <span class="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">SuKem</span> <i class="fa-solid fa-heart text-pink-400 text-4xl align-middle"></i></h1>
+        <p class="mt-6 max-w-xl text-base text-slate-300 md:text-lg">Biển xanh, cát trắng, hải sản tươi ngon & những quán cà phê có view triệu đô. Lưu lại dấu chân và trải nghiệm ẩm thực địa phương đậm chất Phước Hải.</p>
+        <div class="mt-8 flex flex-wrap gap-3 md:hidden" id="mobile-filters">
+          <button class="filter-btn-mobile rounded-full border border-blue-400 bg-blue-600 px-4 py-1.5 text-sm" data-category="Tất cả">Tất cả</button>
+          <button class="filter-btn-mobile rounded-full border border-slate-600 bg-slate-800/70 px-4 py-1.5 text-sm" data-category="Ăn uống">Ăn uống</button>
+          <button class="filter-btn-mobile rounded-full border border-slate-600 bg-slate-800/70 px-4 py-1.5 text-sm" data-category="Dạo bước">Dạo bước</button>
+          <button class="filter-btn-mobile rounded-full border border-slate-600 bg-slate-800/70 px-4 py-1.5 text-sm" data-category="Caffe">Caffe</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/bien_phuoc_hai_thumb_b42d60682d.png" class="hero-image h-56 w-full rounded-2xl object-cover shadow-2xl md:h-64" alt="beach view" loading="eager">
+        <img src="https://stcd02265632633.cloud.edgevnpay.vn/website-vnpay-public/fill/2023/9/0z4ws0ez4vw1694161390986.jpg" class="mt-6 h-56 w-full rounded-2xl object-cover shadow-xl md:h-64" alt="sunset">
+        <img src="https://anchoivungtau.vn/wp-content/uploads/2025/03/cafe-phuoc-hai-2025-ca-phe-cho-iu-chill-3.jpg" class="hero-image h-56 w-full rounded-2xl object-cover md:h-64" alt="local food">
+        <img src="https://a68hotel.com/wp-content/uploads/2024/07/Le-hoi-tha-dieu-khong-lo-h2.jpg" class="mt-6 h-56 w-full rounded-2xl object-cover shadow-xl md:h-64" alt="coastline">
+      </div>
+    </div>
+  </section>
+
+  <!-- Places section -->
+  <section class="mx-auto max-w-[1600px] px-5 pb-20 md:px-12 lg:px-20">
+    <div class="mb-8 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-sky-300">📍 địa danh gợi ý</p>
+        <h2 class="text-3xl font-bold">Trải nghiệm tuyệt vời</h2>
+      </div>
+      <div class="rounded-2xl border border-slate-700 bg-black/40 px-5 py-2 backdrop-blur-md">
+        <span id="visited-count" class="font-mono text-sm">🔥 Đã đi: 0/0</span>
+      </div>
+    </div>
+    <div id="places-container" class="space-y-12"></div>
+  </section>
+
+  <footer class="relative mt-20 overflow-hidden border-t border-white/10 bg-gradient-to-b from-black/40 to-black/60 backdrop-blur-xl">
+  <!-- Hiệu ứng ánh sáng nền -->
+  <div class="absolute inset-0 -z-10">
+    <div class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-purple-600/20 blur-[100px]"></div>
+    <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-blue-600/20 blur-[120px]"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-[1600px] px-6 py-12 md:px-12 lg:px-20">
+    <!-- Phần trên của footer với 4 cột -->
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <!-- Cột 1: Logo & Giới thiệu -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-umbrella-beach text-3xl text-blue-400"></i>
+          <div>
+            <div class="text-xs uppercase tracking-[0.3em] text-blue-300">Travel Guide</div>
+            <div class="text-xl font-bold text-white">Phước Hải <span class="text-purple-400">Explorer</span></div>
+          </div>
+        </div>
+        <p class="text-sm leading-relaxed text-slate-400">
+          Khám phá vẻ đẹp bình yên của biển Phước Hải với những trải nghiệm ẩm thực độc đáo và cảnh quan thiên nhiên tuyệt vời.
+        </p>
+        <div class="flex gap-3">
+          <a href="#" class="rounded-full bg-white/10 p-2 text-slate-300 transition hover:bg-blue-500 hover:text-white">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a href="#" class="rounded-full bg-white/10 p-2 text-slate-300 transition hover:bg-blue-400 hover:text-white">
+            <i class="fa-brands fa-twitter"></i>
+          </a>
+          <a href="#" class="rounded-full bg-white/10 p-2 text-slate-300 transition hover:bg-pink-600 hover:text-white">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="#" class="rounded-full bg-white/10 p-2 text-slate-300 transition hover:bg-red-600 hover:text-white">
+            <i class="fa-brands fa-youtube"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Cột 2: Danh mục nhanh -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-white">
+          <i class="fa-regular fa-compass mr-2 text-blue-400"></i>Khám phá
+        </h4>
+        <ul class="space-y-2 text-sm text-slate-400">
+          <li><a href="#" class="transition hover:translate-x-1 hover:text-blue-300 inline-block"><i class="fa-solid fa-utensils mr-2 text-xs"></i>Ăn uống</a></li>
+          <li><a href="#" class="transition hover:translate-x-1 hover:text-blue-300 inline-block"><i class="fa-solid fa-person-walking mr-2 text-xs"></i>Dạo bước</a></li>
+          <li><a href="#" class="transition hover:translate-x-1 hover:text-blue-300 inline-block"><i class="fa-solid fa-mug-hot mr-2 text-xs"></i>Caffe & Chill</a></li>
+          <li><a href="#" class="transition hover:translate-x-1 hover:text-blue-300 inline-block"><i class="fa-solid fa-camera mr-2 text-xs"></i>Check-in sống ảo</a></li>
+        </ul>
+      </div>
+
+      <!-- Cột 3: Thông tin hữu ích -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-white">
+          <i class="fa-regular fa-circle-info mr-2 text-purple-400"></i>Thông tin
+        </h4>
+        <ul class="space-y-2 text-sm text-slate-400">
+          <li><i class="fa-solid fa-location-dot mr-2 text-blue-400"></i>Phước Hải, Bà Rịa - Vũng Tàu</li>
+          <li><i class="fa-solid fa-water mr-2 text-blue-400"></i>Biển xanh - Cát trắng - Nắng vàng</li>
+          <li><i class="fa-regular fa-clock mr-2 text-blue-400"></i>Thời điểm lý tưởng: 11月 - 4月</li>
+          <li><i class="fa-solid fa-fire mr-2 text-orange-400"></i>Lưu địa điểm đã đi bằng LocalStorage</li>
+        </ul>
+      </div>
+
+      <!-- Cột 4: Bản tin & Đăng ký -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-white">
+          <i class="fa-regular fa-envelope mr-2 text-pink-400"></i>Nhận ưu đãi
+        </h4>
+        <p class="text-sm text-slate-400">Đăng ký để nhận những gợi ý du lịch và ưu đãi hấp dẫn.</p>
+        <div class="flex gap-2">
+          <input type="email" placeholder="Email của bạn" class="flex-1 rounded-xl border border-slate-600 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-blue-400 focus:outline-none">
+          <button class="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 text-sm font-semibold text-white transition hover:scale-105">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+        <div class="pt-2 text-xs text-slate-500">
+          <i class="fa-regular fa-heart text-pink-400"></i> 1,234 người yêu thích Phước Hải
+        </div>
+      </div>
+    </div>
+ <!-- Phần dưới cùng: Copyright và links -->
+    <div class="flex flex-col items-center justify-between gap-4 text-center text-sm text-slate-500 md:flex-row">
+      <div class="flex gap-4">
+        <a href="#" class="transition hover:text-blue-400">Điều khoản sử dụng</a>
+        <a href="#" class="transition hover:text-blue-400">Chính sách bảo mật</a>
+        <a href="#" class="transition hover:text-blue-400">Liên hệ</a>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <i class="fa-regular fa-copyright"></i>
+        <span>2026 Phước Hải Explorer. Designed with</span>
+        <i class="fa-solid fa-heart text-pink-500 animate-pulse"></i>
+        <span>by SuKem Team</span>
+      </div>
+
+  </div>
+
+  <!-- Nút "Lên đầu trang" -->
+  <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="absolute bottom-6 right-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 p-3 text-white shadow-lg transition hover:scale-110">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+</footer>
+
+  <!-- Gallery Modal -->
+  <div id="galleryModal" class="fixed inset-0 z-50 hidden items-center justify-center gallery-overlay transition-all duration-300">
+    <div class="relative mx-4 w-full max-w-5xl rounded-3xl bg-black/50 p-3 backdrop-blur-md">
+      <button onclick="closeGalleryModal()" class="absolute -right-3 -top-3 z-10 rounded-full bg-white/20 p-2 text-xl text-white backdrop-blur hover:bg-white/30">✕</button>
+      <img id="modalMainImg" class="max-h-[70vh] w-full rounded-2xl object-contain shadow-2xl" alt="gallery view">
+      <div id="modalThumbs" class="mt-5 flex flex-wrap justify-center gap-3 overflow-x-auto pb-2"></div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- DATA ----------
+    const placesData = [
+      {
+        id: 1,
+        category: "Ăn uống",
+        name: "Kem dừa- sinh tố Chợ Phước Hải",
+        description: "Quán kem dừa ngay chợ Phước Hải, tìm mãi mới gặp được quán này. Kem ok , anh chủ dễ thương",
+        hours: "16:00 - 23:00",
+        maps: "https://maps.app.goo.gl/9G5XLHszMYxbgq5eA",
+        images: [
+          "https://lh3.googleusercontent.com/gps-cs-s/APNQkAE7919sgyOGcksGBLuQKHU171ZWHsfgJf_AETbPbjiNZyIwo-0_fYvLwW4v8mlDCRiKzx_dm1TOYqKVLY3lswt4mXOW7HQz-nYaSRQeS48QCwfGs8wW1oegWLdIUJyQaP96Hz-9jLcPwZFe=w426-h240-k-no",
+          "https://foodnha.com/wp-content/uploads/2023/09/kem-dua-thai-lan-dena-chill-cho-phuoc-hai-vung-tau-5.jpg",
+          "https://foodnha.com/wp-content/uploads/2023/09/kem-dua-thai-lan-dena-chill-cho-phuoc-hai-vung-tau-4.jpg"
+        ]
+      },
+      {
+        id: 2,
+        category: "Dạo bước",
+        name: "Quảng trường biển Phước Hải",
+        description: "Quảng Trường không lớn nhưng bãi biển ở dưới thì bao la, ở đây tắm được nhé mọi người, có bảo vệ bờ biển nên cũng yên tâm.",
+        hours: "Mở cửa cả ngày",
+        maps: "https://maps.app.goo.gl/mCN7wSrR7W2d5YkR8",
+        images: [
+          "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEgk-j4eUlEMKMEmZA8JM-mGgLaSKD2FtTS30cm62ZGhYwvVyenSTM6ok3rb4HSr-XGGFpkRdKFQUjBLUi3YCQ5NpOXB4vShVc_XT8eAfeLx2yqFTuhS3s8NuM8YMMLNvzN1w=w408-h306-k-no",
+          "https://datviettour.com.vn/uploads/images/tin-tuc-SEO/mien-nam/Vung-Tau/danh-thang/tham-gia-le-hoi-dieu-phuoc-hai.jpg",
+          "https://media.loveitopcdn.com/33377/le-hoi-dieu-khong-lo-phuoc-hai-3-villa-coastar-ho-tram.jpg"
+        ]
+      },
+      {
+  id: 3,
+  category: "Caffe",
+  name: "Chờ iu Chill Cafe Phước Hải",
+  description: "Cafe view đẹp nhìn biển ngồi chill gió thổi mát mẽ. Quán có nhiều bàn ghế tha hồ ngồi. Có phòng lạnh cho ai đi buổi trưa. Nhà vệ sinh sạch. Có bãi giữ xe máy và ô tô miễn phí. Nhân viên nhiệt tình. Nước uống ngon và giá cao phù hợp với khu du lịch. Ngồi đây sẽ xem được người ta thả những con diều to lên trời rất đẹp. ",
+  hours: "07:00 - 22:00",
+  maps: "https://maps.app.goo.gl/6vsouoA691Fdw3Yx7",
+  images: [
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/498926410_1653499055353972_1698655923580196599_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=109&ccb=1-7&_nc_sid=e06c5d&_nc_eui2=AeFDKBFiLTvg-nto-XBp8txc7NX_vFoVag3s1f-8WhVqDXBFJ_V3F_eYtBRFXynN9j8Ad88XwzRdlvlsv6KUM-1N&_nc_ohc=5rnxyZeNiRIQ7kNvwFZ187W&_nc_oc=AdqzkojnbsiOGui-1Lw-eoCklC1EpTz9lLynQGypgri6vZWOdECsjOBjk9ff2o4F9Vk&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=8ylbbfVdeL7dQPVnLrtVZA&_nc_ss=7a3a8&oh=00_Af2oZwQDYoaLSdbr10XFVoSpwydxVjpBEDcgTIbtYaDIaQ&oe=69EA77E2",
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/499477689_1653498708687340_7369149837449358893_n.jpg?stp=cp6_dst-jpg_s590x590_tt6&_nc_cat=100&ccb=1-7&_nc_sid=e06c5d&_nc_eui2=AeG1AIsVt-1hJpwl8bE6KBzFgWJsSviaLZyBYmxK-JotnNF_A7Wvr4BygNTTx1jEZ-dx1jtDqEVe4IG7-A_vI-oc&_nc_ohc=Y5AUFRiEdZwQ7kNvwH6y4Ad&_nc_oc=AdrhK1zpCHh_RAZSRq7C4yCadWQvK-lUrKUyjv0YDB_zzcloFWVlsU4FlJ8jSBPsFK8&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=Vcmj0z7m-p8m5fBi40tmAQ&_nc_ss=7a3a8&oh=00_Af3eW9LUyxcVFI_1-dB2NvoZ6AgshuIRLdTNxLDY8Vdcag&oe=69EA7A65",
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/499733321_1653500415353836_7650418041425037664_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=109&ccb=1-7&_nc_sid=e06c5d&_nc_eui2=AeEgWkoJWKMbSJwYJjn-k9LL56rMgEUp8DXnqsyARSnwNfsia_bt_t2dk-J4BSh2QynxEaasTTBrsacP7t3PZNzJ&_nc_ohc=-iTeVqJ37AwQ7kNvwFvtKb8&_nc_oc=AdrGB5bmI1EcgMn-eGMVkPpNHM_w7Iw1bj9MtCkrKyQSLJ9gJBMFAwpPPWiWbhisLQk&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=c38TcocbtJmakxfWuCRBlA&_nc_ss=7a3a8&oh=00_Af3KZYHvL6WUPutrLtNn4Yn5Vc4cLxqX-NERayJvBlXlkQ&oe=69EA7501"
+  ]
+},
+      {
+        id: 4,
+        category: "Ăn uống",
+        name: "Bánh Khọt Cây Bàng - Chả Giò Cá Phước Hải",
+        description: "Bánh khọt tôm hải sản thập cẩm Bánh đổ nóng hổi, vàng ươm. Cắn một cái nghe rộp rộp – vỏ ngoài giòn giòn nhưng bên trong vẫn mềm ẩm, không bị khô. Tôm và hải sản tươi, ăn cảm nhận rõ vị ngọt tự nhiên. (Có đều bột ra bột tôm ra tôm chưa dính với nhau - 1 điểm hẹ hẹ)",
+        hours: "6:00 - 20:00",
+        maps: "https://maps.app.goo.gl/FNMS8y39iyGPnPWt7",
+        images: [
+          "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/594904039_2597549650614333_6963984830687493530_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=109&ccb=1-7&_nc_sid=e06c5d&_nc_eui2=AeE2lLwn5PqsEeQcHFrxvELE4gsZlOG0GJ_iCxmU4bQYnw9wq9VBrhRP6sDmprCEozWb-aHhcX2NGBRuTk6_L5s5&_nc_ohc=NHSkWXwozV8Q7kNvwH8eluU&_nc_oc=Ado-KNfZSqmOBEXxP2WBqqNuDwvLbx8OZWhlqL0iy1u5s5lF_XTGh8AqCUQsfiotKfU&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=4xfvXkwJ9F9mqgl5KtOwxA&_nc_ss=7a3a8&oh=00_Af3ZiCeYp3L6cgQEhPAaMPcmlAbiLOkaeifYGkgYnfpcng&oe=69EAA27C",
+          "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/593646703_1315814250568800_233206156907132051_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeElWj-8ubJdBZ3voknn6OeGMBTESLTUuAowFMRItNS4CrRuSrteSKQ06mpSmqApEaXHEyFBRldlnJTtaNR07sfp&_nc_ohc=xOfv9YEsM9EQ7kNvwFDNt8M&_nc_oc=AdqKPIF-_lS9kSEHVnqXggDlpvPAWV8-1z4IUXVIqti0Gpl5DeSwzxPHIlskgDb7Ks0&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=Uc2KslcyKECKOcjv_Xx-ag&_nc_ss=7a3a8&oh=00_Af3LZ1orYiNLTHJc3uQJTN9d7FyY-hpvEQz_5wDIzvSQ6w&oe=69EA908D",
+          "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/594002564_1315814007235491_2455905423127040140_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeHVlVPhaAfOXG6JvK7ZyOfcnLoGTBxZ70acugZMHFnvRn5PvXQQZ3Xfq_rbq5MzZ1yzo5DIqpqXCLENBACGB30K&_nc_ohc=7dVgInH4bYoQ7kNvwHeW_pB&_nc_oc=Adp4SRNZukWFwRIaH0d6jZqWJ7ogpQPj8GoLESvG_jocHPR8fF2jM0_iVkgQ-uedEZE&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=RpFE19L3zNhwYka4QoxPcA&_nc_ss=7a3a8&oh=00_Af1lF5QqrIK8ZvBxybmRdPQAAM2ZznhhZZpBPbLhYxLHgw&oe=69EA840D"
+        ]
+      },
+    {
+        id: 5,
+        category: "Ăn uống",
+        name: "Bánh Canh Hải Sản Cô Phờ",
+        description: "Nếu bạn ở khu vực Phước Hải hay du lịch Phước muốn tìm một quán Bánh Canh Hải Sản với hải sản tươi ngon, nước dùng đậm vị thì nên ghé thử quán Bánh Canh Hải Sản Cô Phờ. Có dịp mình sẽ ghé lại quán để thử thêm nhiều món Bánh Canh khác tại quán.",
+        hours: "6:00 - 14:30",
+        maps: "https://maps.app.goo.gl/RtRQxc4pdgr7VFe89",
+        images: [
+            "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/493272369_2365049513870462_1948095232791382337_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=105&ccb=1-7&_nc_sid=e06c5d&_nc_ohc=Zv1XNRirKaYQ7kNvwHIbVdQ&_nc_oc=AdrOb2K1WVRu-hYe51GLcrB9ggOHFZCAmivhBkTaj6KuMirNRVT-NXqY7J4lyHamjTo&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=l4Pm0biq2bnNRJQSyOJF7w&_nc_ss=7a389&oh=00_Af2Yu3laEg_Wd3kBVJQlhaYt-LOpjcPAzVk_b36LqeoGOw&oe=69EA8620"
+            ,"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/494027972_2365049383870475_7616548907576158752_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=e06c5d&_nc_ohc=9sIJTD_DiOwQ7kNvwE4uRlR&_nc_oc=Adqw5XbgKQSOLlPgW51Nhb2iKq2BAMFta8ZIeZJej-bBTSK8LDwX0v_S_GhuxglhOlc&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=a3NeGc_dixFHsj4LJqfHsQ&_nc_ss=7a389&oh=00_Af1TKhAJi3hH_8QREa9149NPs07AUOH36rH6-B_taHr6jg&oe=69EA85CF"
+            ,"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/493276028_2365049520537128_1615427716875160415_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=e06c5d&_nc_ohc=sG8cOVeX6o4Q7kNvwFnPqrh&_nc_oc=AdpyGtl1o5dL-gpF4SLwxCyf0zCNxUp45AfXWQcK1kzW73-odjtQDhzcIKbM0SAPnow&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=9uWrwxLOBnBZhLnpk24f0A&_nc_ss=7a389&oh=00_Af1JVA2rftoi6DBaxQzwSTlmcx0D6FcM4mFgHwjY0dkrzw&oe=69EA93AA"
+          ]
+      },
+      {
+        id: 6,
+        category: "Ăn uống",
+        name: "Hàu Dì Sáu - XuMy",
+        description: "Quán đông đúc, lên món cũng nhanh kh đợi quá lâu. Mình đi vào m6 tết tối cn, đồ ăn tất cả đều ngon, cơm chiên hải sản, cháo hàu cũng ngon nhen, trừ hàu nướng pmai kh ngon kaka",
+        hours: "8:00 - 20:00",
+        maps: "https://maps.app.goo.gl/oC2MiKsNQs7Y9Z6a8",
+        images: [
+            "https://lh3.googleusercontent.com/gps-cs-s/APNQkAFefQbJbH3Jdtx7rZSQfs4ZVRe8S3z_lQvE8CnI9T6JPz4dN6g712Hc_accFTDumT1fCvZqyqwhvRwvVpP2q5IlTacMxehhhmVvzhWs9DduWiSS5sD3y8a8kVzkkRafn7fFzrjttA=s1360-w1360-h1020-rw",
+            "https://lh3.googleusercontent.com/gps-cs-s/APNQkAFJ75V4CQP8nMg1UyYn5Axia5tBXISYhB8OG-CO58rm-14SpJjEXzEwbRCasYzZTfgNfUTJRzz5OD2-FBLpeuiMaN2QKkhmK6PXtaN72gap1ru7tZ6rj5Sx6tYytGzcCRnMEeQJ3J-SS_3Z=s1360-w1360-h1020-rw",
+            "https://lh3.googleusercontent.com/gps-cs-s/APNQkAETxVzSxx8JFCuDMG7YI3sxn7-U0ti9v0hmYWrdrr9zgWMkmNugBbEMI67btS_Yh2qULxfiOG1CG11xCdFTEG4kHWETD_t04AHCVvrWSfPM1BZntmOCROHN_tgcwl-7eSB_oLqeDqG7CTqO=s1360-w1360-h1020-rw"
+             ]
+      },
+      {
+        id: 7,
+        category: "Ăn uống",
+        name: "Hải Sản Thanh Vân",
+        description: "Đồ ăn tươi, giá hợp lý, nhân viên dễ thương nhiệt tình, quán đông nên khá ồn. Không gian thoáng mát, phù hợp cho các buổi họp mặt gia đình và bạn bè.  Đội ngũ phục vụ nhiệt tình, thân thiện, sẵn sàng đáp ứng mọi nhu cầu của khách hàng.",
+         hours: "9:00 - 21:00",
+        maps: "https://maps.app.goo.gl/HSqdCLe9jE77TLxd9",
+        images: [
+      "https://vungtaureview.vn/attachments/9c2e948b-b6c4-4413-a680-86dfb3e296a0-jpeg.10718/",
+    "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/494767502_1140967721386788_5690132783356088963_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=107&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeHhHcWqDVKxTcedDKq0Ry3LuDEQFpSQUoy4MRAWlJBSjMaxjp7XCYlkYWsA_9UYGolAsLEUYNQsMmx5btDXyD92&_nc_ohc=Y00tpWmAOzsQ7kNvwGPXZtP&_nc_oc=Ado30FCoy7u3CNO0fNTp3XUmYaOcokEL4B3YnDdbSBjnkwYB-h0FVYIUs17luFt7flU&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=tptMKG0J28tTrz57FkZGDg&_nc_ss=7a3a8&oh=00_Af0BNEjgk2wm4VZAHJqCmIMZS20BBYkCbX0--b5va_HV_w&oe=69EA8F40",
+"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/494797217_1140966561386904_2875273347840570835_n.jpg?stp=dst-jpg_p552x414_tt6&_nc_cat=108&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeFpXG1xohOuYf1iIslBFkA6iNM0Uid3vFaI0zRSJ3e8VjEVyZBvn-bh3b-C-5dBuzd1iXipj6acaTWxCpt6L3tw&_nc_ohc=t9lfYqNe2JIQ7kNvwGsleSU&_nc_oc=AdrhT6RayjDyOkkRm_V1cOdHISrnrCIzlk9WTgsWU7mWyo0ds37u8xjSTpADrzy-gbc&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=tptMKG0J28tTrz57FkZGDg&_nc_ss=7a3a8&oh=00_Af1WsUZd2Sc337MBZ9dTlnkFGZPPoAJveb1SrcyOHJkwAg&oe=69EA9597"]
+      },
+      {id: 8,
+  category: "Caffe",
+  name: "LEONA CAFE",
+  description: "Không gian quán mát mẻ, có tiếng sóng, có gió biển. View xinh, lãng mạn. Quán không có khu vực phòng lạnh Nước uống có lẽ không hợp khẩu vị mịn lắm.",
+  hours: "07:00 - 22:00",
+  maps: "https://maps.app.goo.gl/V7GB7zhqiDBVCW9TA",
+  images: [
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/544899904_804525028765894_2699307061598578851_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=110&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeGHL6vJLX4IoUHDwtA3S4zilnSd4CmnBTSWdJ3gKacFNKhg_zL80VnQDSxWqnxCnwtkQmog-p6qhv21z9PHFQrO&_nc_ohc=_gLJamqHgksQ7kNvwEy2fnv&_nc_oc=Adr8UdHX3NAzu11oSHrD8s01ckaUV1fZgojBBa3e9dRH8pcr9VYAk4oAVpXq-leUelA&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=VeStjRwh-x2lnDaeo7yAJQ&_nc_ss=7a3a8&oh=00_Af1CsMuhRk7YxOPiSS2imrWxjNLlXQsfym6S7Vo6k_0RKA&oe=69EA84FB",
+"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/543112391_804525152099215_5263803566954638702_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=102&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeFNmhc7rbGTHc6EeWCmtuZtlZY3R4QSmvuVljdHhBKa-5GX4-vxZrOs4N8ngRFLGhprTK1ZJ5QfxygToX2HkGNl&_nc_ohc=44xkwPH2fKQQ7kNvwGH32l-&_nc_oc=Ado73fBmXNbmIrNzkEkTtf1iVkCOf7GKUXB0HWXE0XJUfVxiajNkt9kFslqBk9lQ4gA&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=VeStjRwh-x2lnDaeo7yAJQ&_nc_ss=7a3a8&oh=00_Af2fcBPlpopMNYIFPtJfrcjxPubJ9Zq8ND8PJsJnCol9XA&oe=69EA9A2E",
+"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/544786092_804525258765871_7749100345580820725_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=107&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeE3Jz8PDq1hheyao-32yLIa1ayV3B03ItLVrJXcHTci0vszGKA7tNQSLeHBiMCqwLd__GYasMdJPG00GdiQyvET&_nc_ohc=Xg4Ee2cY1XIQ7kNvwHMgvaW&_nc_oc=AdpGFuLS3IA8ZjE__Nohhc5QGnGMmn5FjCY2bWgS_Ln64bgflA7zMgqoxHfNBlBSnZE&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=VeStjRwh-x2lnDaeo7yAJQ&_nc_ss=7a3a8&oh=00_Af3740Gw0JrlYpSgtkUDvtnhZhLg0auLsdy6GiMrMFQRCw&oe=69EA9606" ]
+},
+{id: 9,
+  category: "Ăn uống",
+  name: "Bánh tráng nướng mắm ruốc (Cô Loan)",
+  description: "Dân Phước Hải chắc cũng không xa lạ với xe bánh tráng nướng mắm ruốc trên đường Lý Tự Trọng. Bánh tráng nướng thơm phức, tóp mỡ giòn giòn, chấm cùng sốt đặc trưng tạo vị ngon khó quên.",
+  hours: "14:00 - 19:30",
+  maps: "https://maps.app.goo.gl/Lubm8TfGJfNKLq2L6",
+  images: [
+    "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/528613314_1214165710733655_3281312010655442148_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeFlX0Q_EX1Bx1cx8zXRmsB7m6oKi-mfBxGbqgqL6Z8HEWRq0rfIOi3dmS7CXXnIzgvq_jJnzhGYD_Z1hFuTEcdJ&_nc_ohc=voaNT5ehVh4Q7kNvwGyjCrl&_nc_oc=AdoQSSHwijc4LIdQV9XeuYhExWmEF8GWqymtPzAI2oVC04ZNPipPEBEt-WhYRr3iYgQ&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=NOmhNKbCIlFEC7xGFoZOFw&_nc_ss=7a3a8&oh=00_Af088jImWSOW2vIHZYC3y5qn-vrRj16eqgrJfSW9wOInrQ&oe=69EAAE4F",
+    "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/528613314_1214165710733655_3281312010655442148_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeFlX0Q_EX1Bx1cx8zXRmsB7m6oKi-mfBxGbqgqL6Z8HEWRq0rfIOi3dmS7CXXnIzgvq_jJnzhGYD_Z1hFuTEcdJ&_nc_ohc=voaNT5ehVh4Q7kNvwGyjCrl&_nc_oc=AdoQSSHwijc4LIdQV9XeuYhExWmEF8GWqymtPzAI2oVC04ZNPipPEBEt-WhYRr3iYgQ&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=NOmhNKbCIlFEC7xGFoZOFw&_nc_ss=7a3a8&oh=00_Af088jImWSOW2vIHZYC3y5qn-vrRj16eqgrJfSW9wOInrQ&oe=69EAAE4F",
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/529617295_1214165797400313_3146541057700813681_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeF9ptlDbMcGr7pOJebIGmT6rgISDbrxfHSuAhINuvF8dIBxk_JGXC8d6vYY51a2-6Y0nUpoSSzatxPKbTvto36d&_nc_ohc=XSkN30yzPkIQ7kNvwERbV0y&_nc_oc=AdqdzbG4OOWZn8hCnRauzVjV-wDKL3mF-FTE9Fh3NjAW9pGYoatRq9SFfiRdokKJ-hE&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=hPB1vuWa87Cg8cSDuEtDjQ&_nc_ss=7a3a8&oh=00_Af3na8B7Hadh8C1tWUERnkdVxbFqk7zZst8Tdjhu6plZ-g&oe=69EAA4F0"
+]
+    },
+    {id: 10,
+  category: "Caffe",
+  name: "Ấn Tượng coffee",
+  description: "Bật mí một chiếc Coffee không chỉ ngon mà còn được khoác lên mình chiếc áo dài duyên dáng thông qua cửa hàng ÁO DÀI 0Đ ngay tại quán",
+  hours: "06:30 - 22:00",
+  maps: "https://maps.app.goo.gl/VTW8GJcmjA4i6ruv7",
+  images: [
+    "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/498587607_1149439713872922_8624067297524954010_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=107&ccb=1-7&_nc_sid=13d280&_nc_ohc=Qm_iDcpoavQQ7kNvwHpJefc&_nc_oc=Adr4I-Kc3x6q2pCwknNjwOOQHZ2u5_qontYCaaTdlwLkhykt_eHOLq0D8tjtjH7L0ag&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=-i9IbMkzCdxwCJObWb6wFw&_nc_ss=7a389&oh=00_Af2YBPZ8H2x3iIBYdH9qXuxxeNJDMJSTNVhcpvBJQy_qBA&oe=69EAC29F",
+    "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/498215491_1149439690539591_1408620631730945943_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=108&ccb=1-7&_nc_sid=13d280&_nc_ohc=f0hXzToIIRgQ7kNvwFGQY29&_nc_oc=Adot11V7QxhAuxVeADyXRpyIzVd4lUevKVblvrrdjM7NDfUhk61JB3bf3X0Q_VxKETc&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=bCcVpcp6xeV7yVgGCRLmnQ&_nc_ss=7a389&oh=00_Af0bHtda5UoOFRv9vnmdaPuA0Zl-D_wnuVSkNaiRuhQUNA&oe=69EAAA95",
+"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA4K90HonAxZ_IMKkclnDg9cTiKfwUShSVRA&s"]},
+{id: 11,
+  category: "Caffe",
+  name: "Trạm Phước Hải - Cafe Workshop The NeO",
+  description: "Nước uống tạm ổn có workshop và tiệm thuê đồ kế bên nên rất tiện nếu có nhu cầu không gian đơn giản nhưng có vibes riêngn lắm.",
+  hours: "06:30 - 20:00",
+  maps: "https://maps.app.goo.gl/dC9cRttyqGC3uwCZ7",
+  images: [
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/638441483_1496841889117130_8917043507237846171_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeEk0eKRo__FbI8q1tnmPzbB1-YOxnz3UmjX5g7GfPdSaK-VcS0fLi-f8F6wrf0G2MSLlUupHHRbCLVbonM8KKaF&_nc_ohc=BtCVMgj0ELkQ7kNvwFvTefe&_nc_oc=AdpbRvY5nqR6Q5MkhPa6Kc3cyPl-5ND6KHK_Ld86ajJyjaWrmz1S4g_xCsjrYhlyOeg&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=fbrWbwzvHOB177HblqQJPw&_nc_ss=7a3a8&oh=00_Af1QsfhAv3LYXQjOE52ka0b-Pnd5SSaFaufxcQHDxpQMVA&oe=69EAA73C",
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/639837411_1496842159117103_5410338034751348219_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeEFeoQDSAYBERxBfmzQEBfgHuHGxGdaYkAe4cbEZ1piQL8_Dki6DGyvszJT_VqVrgkAaDdn-07dTP6sjDPzbT3M&_nc_ohc=N2IdZGOPnsAQ7kNvwH-JuE1&_nc_oc=AdpPE6lsWjjIeXqbWOLo0pwllWceHRjfOczdP1wAY_nzNVgVgz-s1gcAvfPUl0RoOJk&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=6d-e0wEoPQy4aib3K6u8_Q&_nc_ss=7a3a8&oh=00_Af3sKoJ2Ygy-ZG_gusumVW3RGva4IxZe1jouOFhkz1fcgA&oe=69EABEC7",
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/636858626_1496844752450177_7933463227970378911_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=104&ccb=1-7&_nc_sid=13d280&_nc_eui2=AeEvaBqWlnQugj-44ufTLyzR2ncFR_4-4vPadwVH_j7i84jomoU34-4Sc7aV4xLzdl1n83QB34r3TLCsXDYC-gId&_nc_ohc=TvmEfxxY0X8Q7kNvwHuXfrr&_nc_oc=AdrCuHHK_C4qAVbAPKrYKquu7SE3mgmuv1d9w_LovZHdDGcsIXm4tmRGBpLuFD-Zr8o&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=YWSD147AQlVJ4UIVSzX13w&_nc_ss=7a3a8&oh=00_Af0EZhl_udZp33xC0916BohZ26RuJwmjeGGMFzuE8aWoqg&oe=69EAA57D"
+]},
+{
+        id: 12,
+        category: "Dạo bước",
+        name: "Bờ Kè Lộc An",
+        description: "Bờ kè Lộc An Phước Hải nằm ở xã Lộc An, huyện Đất Đỏ, tỉnh Bà Rịa – Vũng Tàu, cách trung tâm thành phố Vũng Tàu khoảng 50km. Nơi đây mới nổi lên trong những năm gần đây như một điểm đến lý tưởng cho du khách yêu thích sự hoang sơ, bình yên và muốn tận hưởng bầu không khí trong lành của biển cả.",
+        hours: "Mở cửa cả ngày",
+        maps: "https://maps.app.goo.gl/YnDKytXMUuUgHUFQ7",
+        images: [
+          "https://a68hotel.com/wp-content/uploads/2024/07/Bo-ke-Loc-An-h1.jpg",
+          "https://a68hotel.com/wp-content/uploads/2024/07/Bo-ke-Loc-An-h1.jpg",
+          "https://a68hotel.com/wp-content/uploads/2024/07/Bo-ke-Loc-An-h1.jpg"
+        ]
+      },
+      {
+        id: 13,
+        category: "Dạo bước",
+        name: "BÃI TẮM CÔNG CỘNG PHƯỚC HẢI 1",
+        description: "Biển Phước Hải là một trong những bãi biển xinh đẹp được nhiều người yêu thích. Nơi đây vẫn giữ cho mình vẻ đẹp bình dị, hoang sơ mà mộc mạc. Đến đây, bạn sẽ được thấy những hình ảnh người dân địa phương đang làm việc nhiều hơn là những hình ảnh ghế tắm nắng hay các dịch vụ khác.",
+        hours: "06:00 - 18:00",
+        maps: "https://maps.app.goo.gl/4EhWzCEqy9bfJ3hS7",
+        images: [
+          "https://datviettour.com.vn/uploads/images/tin-tuc-SEO/mien-nam/Vung-Tau/bien-phuoc-hai.jpg",
+          "https://datviettour.com.vn/uploads/images/tin-tuc-SEO/mien-nam/Vung-Tau/canh-bien-phuoc-hai-dep.jpg",
+          "https://datviettour.com.vn/uploads/images/tin-tuc-SEO/mien-nam/Vung-Tau/bai-tam-bien-phuoc-hai.jpg"
+        ]
+      },
+      {id: 14,
+  category: "Ăn uống",
+  name: "Bò Hàu BaMi Phước Hải",
+  description: "Không gian rộng rãi, thoáng mát và đội ngũ nhân viên Chuyên nghiệp -  Nhiệt tình - Là 1 điểm ăn uống lý tưởng cùng bạn bè và gia đình mà không cần đi đâu xa…",
+  hours: "16:00 - 21:30",
+  maps: "https://maps.app.goo.gl/cp5fT2GTY3pUwRnz7",
+  images: [
+    "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEMmZgk5JR01_Py2x1MqFB4L0XoPEIyoONu0jRJEeUzx-HkOqDIIZoNKNEql7cSbgqPIMzJsxrZmNR8sCko0EIjR0edGlhFBriRSCyFhrAsT0o9ETAXkAzlAbIZOKKh-EufpjlnxfqFM_sx=w408-h544-k-no",
+"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/495353839_122173603604319944_5688674017166808278_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=e06c5d&_nc_eui2=AeH2PgmTn7FcY0Dbx5GbFlWP5vzSPtOvtArm_NI-06-0CmAKPXz6LgLTv7tbp-m0rsLeB__dX1qGR5nb8mpFzCcW&_nc_ohc=gK3oDyh-AukQ7kNvwGO-I7P&_nc_oc=Ado_5F-eTWshKx4Au0RAy4clJHjhqF1w_m5iVHX-hB-BOQBfW2Jn8_zHoNGx2MJCBC4&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=7PhaVRdCdGnVCJJ6tbjtxw&_nc_ss=7a3a8&oh=00_Af1DUUy4VX8eq3OaTOuW9pcGfJnWTUXvO_xFKZeG-EDBbw&oe=69EA9C5E",
+"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/495046549_122173603616319944_4756068024114574797_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=e06c5d&_nc_eui2=AeHlFnlPwilbFqRZDK3HIyEsrq7X2PRsOVyurtfY9Gw5XKQpgT9bIESpY0GH0T-X3yTB8LMcHIKFxSiTc5gR1ZSS&_nc_ohc=8W0dYXlt9yoQ7kNvwGX9GXA&_nc_oc=AdrEfQixbefcfWnQl7VO6hvUcytBA8ikD8V6lV9fzkqA0D_qEJ59iSPj-0Gq9wH8V7Y&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=2TIjDhen6ipRZnGwWOLphA&_nc_ss=7a3a8&oh=00_Af1qV07EkF9K6X6S575l-1zqXlLKg5ahDmB_C2nSU0oAKQ&oe=69EAAD87"]
+    },
+      {id: 15,
+  category: "Ăn uống",
+  name: "Tàu hũ tươi Singapore Yummy Phước Hải",
+  description: "Tàu hũ Yummy ra đời từ chính gian bếp của gia đình, với mong muốn đem lại cho các thành viên một sản phẩm ngon mắt, sạch sẽ, tốt cho sức khỏe. Sau nhiều lần thử nghiệm công thức và được đánh giá tiềm năng bởi người thân, bạn bè. Thương hiệu tàu hũ Singapore Yummy bắt đầu từ đó.",
+  hours: "07:00 - 22:00",
+  maps: "https://maps.app.goo.gl/T5nxNLPsRdazHcor8",
+  images: [
+    "https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/559270855_1269557725194453_2177984824780913806_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=103&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeHQEfuH24uRRzoj6a-fCc-3ult--oF96_m6W376gX3r-XqAusEWjE5KELTgUJ7ci2G_0l4RKihLZhxFxQgEUIMm&_nc_ohc=Ldvxei-1NUcQ7kNvwG9f9H7&_nc_oc=AdoOQyDLAwb7HhcUGvWoZI4csEjSiUERzFGmfPikJDx1Ok4HhZ-JrqT99h8NNp-lfdU&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=l1deEvPooWgmjYppunHwAw&_nc_ss=7a3a8&oh=00_Af07Tq3VLPJqFJn_m1cJCpg-7iiL7Te8gHxkX1OyVB-uBw&oe=69EACAC8",
+"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/559306069_1269558218527737_6813943330746727872_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeHx8yco14DaOyDecPXtMU12Os6p-0xLXhk6zqn7TEteGQU_YHgA_HGJ8N2ChDMpK1BacSaH3kjbRvxlUKulLAGm&_nc_ohc=x2t78-PgMpIQ7kNvwFbKhqC&_nc_oc=AdqNwf6zwln8bM5eVs8QrZ-iIg8XE2zlQLGMQfvHA-FTX-rFfxxgVYJEcA6Jz_F-fbk&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=9jV0dySrancbIlOAaO8nRQ&_nc_ss=7a3a8&oh=00_Af146qdmHSZo80Kd70P6rbb-2oDRy3ieG1sPGWfUokIMfQ&oe=69EAB27C",
+"https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/561437838_1269558351861057_1261959778358974538_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeHEbni3Fmuo94LlVterOcxukFEIbnJ-IiSQUQhucn4iJIjWUz46DqJA1nwVXSDQkupyxKh5KDEi3JXoVzwEy_wC&_nc_ohc=lf964Q0BMEUQ7kNvwHMjHiM&_nc_oc=AdpluObQX12W5hL3N02pnxcSCvKm3tfXvgEn9gYwIuft1OpdtrapzL5WaxwTbptlA2s&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=LcMV338348Jiiyx-7LFWkA&_nc_ss=7a3a8&oh=00_Af0G1R5fO6muDt5gtejlOCY03qLKKKRei6k7gwYj4O4ZFQ&oe=69EA9E10"]
+    },
+    {
+        id: 16,
+        category: "Dạo bước",
+        name: "Hồ Sở Bông",
+        description: "Nơi đây được ví như một “bức tranh thủy mặc” với một bên là hồ nước trong xanh, một bên là núi non hùng vĩ, xung quanh được bao bọc bởi màu xanh mát của cây cối. Bờ hồ Sở Bông là nơi cực kỳ thích hợp để tổ chức các trò chơi tập thể, cắm trại, team building với hội nhóm vừa và nhỏ. Bề mặt đất cát không bị lún nên mọi người di chuyển rất dễ dàng.",
+        hours: "Mở cửa cả ngày",
+        maps: "https://maps.app.goo.gl/DkMp3pzZQ45EKw7A6",
+        images: [
+          "https://anchoivungtau.vn/wp-content/uploads/2025/08/h1-1.jpg",
+          "https://anchoivungtau.vn/wp-content/uploads/2025/08/h20-1.jpg",
+          "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/492892088_2131408207376226_405602287687849776_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=e06c5d&_nc_eui2=AeH7JwNxZAAIgwB9o2nFgVd1hEHFh6NW0KOEQcWHo1bQoxw8GH0a6kZftOSDdQDU0dlNQR1KNOu_1pWbRrNFQHyy&_nc_ohc=GKmTWwMcMYAQ7kNvwETiTQr&_nc_oc=Adq1PJ49KQLnWZhHkDY5E863gzA7DCkRP8G88peVyPWp3noH0KEXRM3ywA6OuGoYDWk&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=hcmOVjS0wO_Cf5FjxuPFrQ&_nc_ss=7a3a8&oh=00_Af08hsVegvfpXHipuu1PC9yUejYIAbamFK73u2zGvCvzTA&oe=69EAB96C"
+        ]
+      },
+      {
+        id: 17,
+        category: "Dạo bước",
+        name: "Check in Hoa Giấy Phước Hải",
+        description: "Xếp hàng dài check in cung đường hoa giấy khổng lồ tại Phước Hải",
+        hours: "Mở cửa cả ngày",
+        maps: "https://maps.app.goo.gl/P6n8fiT2LV2BrQed8",
+        images: [
+          "https://cdn.tgdd.vn/Files/2023/03/06/1515071/5-toa-do-ngam-hoa-giay-tai-vung-tau-cuc-dep-checkin-lien-tay-202303061055101686.jpg",
+          "https://datviettour.com.vn/uploads/images/tin-tuc-SEO/mien-nam/Vung-Tau/con-duong-hoa-giay-dao-duy-tu1.jpg",
+          "https://lh3.googleusercontent.com/gps-cs-s/APNQkAH89mufRX5cx84_q5-22M7ceh-CK3XlOfTXg5elJBSVNJiJL1cxshspIj9Rwbauqi-vR2gIRfC5qs2bil_C_CPnHfYRmdQst3GFsXYSL5Aio73XkPWWroyBPF0tNzzrIaZv9QCz4aDhvFcv=w408-h544-k-no"
+        ]
+      },
+      {id: 18,
+  category: "Caffe",
+  name: "1991's Coffee & Beer",
+  description: "Vì cuộc đời đáng sống, nên hãy lưu lại những khoảnh khắc tươi đẹp thường xuyên",
+  hours: "07:30 - 22:00",
+  maps: "https://maps.app.goo.gl/timtX495uv3yHZ1X6",
+  images: [
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/625195624_1575013524235315_7786969788518231538_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeHMtxxFyWF1Da83gSjKWpojfN4CPWsdhUh83gI9ax2FSNJd67s8jxQBjLo04NAGdzVvLb2fa6zm9ZI8OQdhwda0&_nc_ohc=SFvETEj1-CUQ7kNvwGi505s&_nc_oc=AdqPrYTO5MeFE66JvMlRiuQlJGzJAAOt6mpTz66NYSjpbvEHb847FTlwXCyyiNgDDqw&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=qrPMbgGpykymRmOo2-Q5zQ&_nc_ss=7a3a8&oh=00_Af2QIImkDPawraaE0XLRNtlmGxR2qayXFhhiQl9snx2CAQ&oe=69EAC96E",
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/624342186_1575013520901982_7248300767673549976_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeFVOU6bzTj3IdfpGq18M6YNXWaw7jZEfZldZrDuNkR9mTZDwXIcU3AJoIVvy_8e9Cpxtv44fKWW3ln_KoEXG6Uv&_nc_ohc=CZOocE7ZOQEQ7kNvwFSESiJ&_nc_oc=AdosR7O7R26W4mzFn8ie9BZCqfV2DnIwAfkD6AX4PraUFQOzfZpRHcAqD3ejvu9c7zM&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=7QhsRg1_nbHsqNV4L9WhAQ&_nc_ss=7a3a8&oh=00_Af3dzd0xLj9dQigYBMtQbnpof_BI-sSwwhVIO89FkeyXkQ&oe=69EAAE27",
+    "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/626531607_1575013527568648_7302951907372432884_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeFunIoAPBNKb11JXEekeP5DUkBWSeDSeJRSQFZJ4NJ4lIJ3B3X209RWUXeDVNV6lg97_WW02-i1gf7bVCQuB9px&_nc_ohc=lZioSvlp_mMQ7kNvwGskQ-V&_nc_oc=AdqpFsI9xLzJnC5OTKr8von4sbe8NV2im2T1BwRUoFEcE0g4erm_4NEjt8oV2fBhy80&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=usMpRo_x8PT8YyldQpagXw&_nc_ss=7a3a8&oh=00_Af2T2E0TmqS0nLyrJpUBSeDGfcRHRjf6Jp4TPJEe9gJ4kw&oe=69EAA783"
+]},
+        ];
+
+    // LocalStorage visited
+    let visitedIds = JSON.parse(localStorage.getItem('phuochai_visited')) || [];
+    let currentFilter = "Tất cả";
+
+    // Helper: update visited count display
+    function updateVisitedCounter() {
+      const counterSpan = document.getElementById('visited-count');
+      if (counterSpan) {
+        counterSpan.innerHTML = `🔥 Đã đi: ${visitedIds.length}/${placesData.length}`;
+      }
+    }
+
+    // Toggle visited function
+    function toggleVisited(placeId) {
+      const index = visitedIds.indexOf(placeId);
+      if (index === -1) {
+        visitedIds.push(placeId);
+      } else {
+        visitedIds.splice(index, 1);
+      }
+      localStorage.setItem('phuochai_visited', JSON.stringify(visitedIds));
+      renderPlaceCards();
+    }
+
+    // Gallery global
+    let currentPlaceImages = [];
+    function openGalleryModal(placeId, startIndex) {
+      const place = placesData.find(p => p.id === placeId);
+      if (!place) return;
+      currentPlaceImages = place.images;
+      const modal = document.getElementById('galleryModal');
+      const mainImg = document.getElementById('modalMainImg');
+      const thumbsDiv = document.getElementById('modalThumbs');
+      
+      mainImg.src = currentPlaceImages[startIndex] || currentPlaceImages[0];
+      
+      thumbsDiv.innerHTML = currentPlaceImages.map((imgUrl, idx) => `
+        <img src="${imgUrl}" 
+             class="thumb-img h-16 w-24 cursor-pointer rounded-xl object-cover border-2 ${idx === startIndex ? 'border-blue-400' : 'border-white/30'} hover:border-indigo-300 transition-all"
+             onclick="document.getElementById('modalMainImg').src='${imgUrl}'; document.querySelectorAll('#modalThumbs img').forEach((el,i)=>{ if(i===idx) el.classList.add('border-blue-400'); else el.classList.remove('border-blue-400'); })">
+      `).join('');
+      
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeGalleryModal() {
+      const modal = document.getElementById('galleryModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+    
+    // Render with fixed image heights & crisp layout
+    function renderPlaceCards() {
+      const container = document.getElementById('places-container');
+      if (!container) return;
+      
+      let filteredPlaces = placesData;
+      if (currentFilter !== "Tất cả") {
+        filteredPlaces = placesData.filter(p => p.category === currentFilter);
+      }
+      
+      if (filteredPlaces.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 text-slate-400 text-lg">✨ Chưa có địa điểm nào trong danh mục này. Khám phá thêm nhé!</div>`;
+        updateVisitedCounter();
+        return;
+      }
+      
+      const html = filteredPlaces.map((place, idx) => {
+        const isVisited = visitedIds.includes(place.id);
+        const oddLayout = idx % 2 !== 0;
+        return `
+          <div class="place-card rounded-3xl p-5 md:p-6 transition-all duration-300">
+            <div class="grid gap-7 lg:grid-cols-2 ${oddLayout ? 'lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1' : ''}">
+              <!-- Image gallery grid: fixed aspect ratio, high quality, no blur -->
+              <div class="grid grid-cols-3 gap-2 md:gap-3">
+                <div class="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl" onclick="openGalleryModal(${place.id}, 0)">
+                  <img src="${place.images[0]}" class="w-full h-44 sm:h-56 lg:h-64 object-cover rounded-2xl transition duration-300 group-hover:scale-[1.02] shadow-md" alt="${place.name}">
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="relative cursor-pointer overflow-hidden rounded-2xl" onclick="openGalleryModal(${place.id}, 1)">
+                    <img src="${place.images[1]}" class="w-full h-[104px] sm:h-[132px] lg:h-[152px] object-cover rounded-2xl transition hover:scale-[1.01]">
+                  </div>
+                  <div class="relative cursor-pointer overflow-hidden rounded-2xl" onclick="openGalleryModal(${place.id}, 2)">
+                    <img src="${place.images[2]}" class="w-full h-[104px] sm:h-[132px] lg:h-[152px] object-cover rounded-2xl brightness-90 transition hover:brightness-100">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30 rounded-2xl text-white text-sm font-bold backdrop-blur-[1px]">+${Math.max(place.images.length - 2, 1)}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Info side -->
+              <div>
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                  <span class="rounded-full bg-gradient-to-r from-indigo-500/30 to-purple-500/30 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-indigo-200 border border-indigo-400/30">${place.category}</span>
+                  <button onclick="toggleVisited(${place.id})" class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all ${isVisited ? 'bg-orange-500/25 text-orange-200 border border-orange-400/40' : 'bg-slate-800/70 text-slate-300 border border-slate-600'}">
+                    <span class="text-base">🔥</span> ${isVisited ? 'Đã đi' : 'Chưa đi'}
+                  </button>
+                </div>
+                <h3 class="text-2xl md:text-3xl font-bold text-white tracking-tight">${place.name}</h3>
+                <p class="mt-3 text-slate-300 text-sm md:text-base leading-relaxed">${place.description}</p>
+                <div class="mt-5 rounded-xl bg-white/5 border border-slate-700 p-3 backdrop-blur-sm">
+                  <div class="text-xs text-slate-400"><i class="far fa-clock mr-1"></i> Giờ mở cửa</div>
+                  <div class="text-md md:text-lg font-semibold text-sky-200">${place.hours}</div>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                  <a href="${place.maps}" target="_blank" class="glass-button flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold shadow-md hover:shadow-blue-500/30">
+                    <i class="fab fa-google"></i> Xem Google Maps
+                  </a>
+                  <button onclick="toggleVisited(${place.id})" class="glass-button flex items-center justify-center gap-2 rounded-xl border border-purple-500/40 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-purple-500/20 hover:text-white">
+                    <span>🔥</span> ${isVisited ? 'Bỏ đánh dấu' : 'Đánh dấu đã đi'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = html;
+      updateVisitedCounter();
+    }
+    
+    // Filter handlers
+    function setActiveFilter(category, isMobile = false) {
+      currentFilter = category;
+      // Update desktop buttons
+      const desktopBtns = document.querySelectorAll('.filter-btn');
+      desktopBtns.forEach(btn => {
+        if (btn.dataset.category === category) {
+          btn.className = "filter-btn rounded-full border border-blue-400 bg-blue-600/80 px-5 py-2 text-sm font-medium shadow-md text-white";
+        } else {
+          btn.className = "filter-btn rounded-full border border-slate-600 bg-slate-800/60 px-5 py-2 text-sm font-medium text-slate-300";
+        }
+      });
+      // Update mobile buttons if exists
+      const mobileBtns = document.querySelectorAll('.filter-btn-mobile');
+      mobileBtns.forEach(btn => {
+        if (btn.dataset.category === category) {
+          btn.className = "filter-btn-mobile rounded-full border border-blue-400 bg-blue-600 px-4 py-1.5 text-sm text-white";
+        } else {
+          btn.className = "filter-btn-mobile rounded-full border border-slate-600 bg-slate-800/70 px-4 py-1.5 text-sm text-slate-300";
+        }
+      });
+      renderPlaceCards();
+    }
+    
+    // Initialize event listeners
+    function bindFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          setActiveFilter(btn.dataset.category, false);
+        });
+      });
+      document.querySelectorAll('.filter-btn-mobile').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          setActiveFilter(btn.dataset.category, true);
+        });
+      });
+    }
+    
+    // Make functions global for inline onclick
+    window.toggleVisited = toggleVisited;
+    window.openGalleryModal = openGalleryModal;
+    window.closeGalleryModal = closeGalleryModal;
+    
+    // initial render
+    renderPlaceCards();
+    bindFilters();
+    
+    // close modal on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('galleryModal');
+        if (modal && modal.classList.contains('flex')) closeGalleryModal();
+      }
+    });
+    
+    // fix any missing image sizing issues: preload smoothness
+    window.addEventListener('load', () => {
+      renderPlaceCards(); // re-render to ensure consistency
+    });
+  </script>
+</body>
+</html>
